@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>债务自查分析工具 - 工程师思维版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .author-tag {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        
+        .main-content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 25px;
+            background: #f8f9fa;
+        }
+        
+        .section h2 {
+            color: #2c3e50;
+            font-size: 20px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .debt-item {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .debt-item h3 {
+            color: #495057;
+            margin-bottom: 15px;
+        }
+        
+        .remove-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #495057;
+        }
+        
+        .form-group input, .form-group select {
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52,152,219,0.3);
+        }
+        
+        .help-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 3px;
+        }
+        
+        .auto-calculated {
+            background-color: #e8f5e8 !important;
+            position: relative;
+        }
+        
+        .auto-calculated::after {
+            content: "自动计算";
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 10px;
+            color: #27ae60;
+            font-weight: bold;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+        
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #229954;
+            transform: translateY(-2px);
+        }
+        
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #e67e22;
+            transform: translateY(-2px);
+        }
+        
+        .results {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        
+        .results h2 {
+            color: white;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .result-item {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .result-item h4 {
+            margin-bottom: 10px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .result-item .value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .risk-level {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .risk-low { background: #27ae60; }
+        .risk-medium { background: #f39c12; }
+        .risk-high { background: #e74c3c; }
+        
+        .suggestions {
+            background: rgba(255,255,255,0.15);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .suggestions h3 {
+            margin-bottom: 15px;
+        }
+        
+        .suggestions ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .suggestions li {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .suggestions li:before {
+            content: "🔧";
+            position: absolute;
+            left: 0;
+        }
+        
+        .policy-match {
+            background: rgba(255,255,255,0.15);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .policy-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .cta-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            margin-top: 30px;
+            border-radius: 10px;
+        }
+        
+        .cta-section h2 {
+            color: white;
+            border: none;
+            margin-bottom: 20px;
+        }
+        
+        .price-highlight {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .price-highlight .old-price {
+            text-decoration: line-through;
+            opacity: 0.7;
+            font-size: 18px;
+        }
+        
+        .price-highlight .new-price {
+            font-size: 36px;
+            font-weight: bold;
+            color: #f1c40f;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 债务自查分析工具 - 工程师思维版</h1>
+            <p>用造价师的精确思维，帮你量化分析债务风险</p>
+            <div class="author-tag">
+                by 负债路上的工程师 | 13年造价师经验 | 已帮助200+人成功减负
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <!-- 用户基本信息 -->
+            <div class="section">
+                <h2>👤 基本信息填写</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>您的称呼</label>
+                        <input type="text" id="userName" placeholder="请输入您的称呼">
+                        <div class="help-text">用于个性化分析报告</div>
+                    </div>
+                    <div class="form-group">
+                        <label>最关心的债务问题</label>
+                        <input type="text" id="mainConcern" placeholder="如：信用卡逾期、催收骚扰、不知如何协商等">
+                        <div class="help-text">帮助我们了解您的核心困扰</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 基本财务信息 -->
+            <div class="section">
+                <h2>📊 收支情况 (财务基础数据)</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>月收入 (元)</label>
+                        <input type="number" id="monthlyIncome" placeholder="扣除五险一金后的实际收入">
+                        <div class="help-text">填写到手收入，不含五险一金</div>
+                    </div>
+                    <div class="form-group">
+                        <label>月必要支出 (元)</label>
+                        <input type="number" id="monthlyExpenses" placeholder="房租、生活费、子女教育等">
+                        <div class="help-text">基本生活开支，不可压缩的费用</div>
+                    </div>
+                    <div class="form-group">
+                        <label>可用于还债的钱 (元)</label>
+                        <input type="number" id="availableIncome" placeholder="自动计算" class="auto-calculated" readonly>
+                        <div class="help-text">系统自动计算：收入-必要支出</div>
+                    </div>
+                    <div class="form-group">
+                        <label>家庭状况</label>
+                        <select id="familyStatus">
+                            <option value="single">单身</option>
+                            <option value="married">已婚无子女</option>
+                            <option value="children">已婚有子女</option>
+                            <option value="elderly">需赡养老人</option>
+                        </select>
+                        <div class="help-text">影响必要生活费标准</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 债务清单 -->
+            <div class="section">
+                <h2>📋 债务清单 (BOM材料清单式管理)</h2>
+                <p style="color: #666; margin-bottom: 20px;">
+                    🔍 像工程材料清单一样，逐项录入每笔债务的详细信息<br>
+                    💡 <strong>系统会自动计算利率和优先级，您只需填写基本信息</strong><br>
+                    🏦 <strong>请务必填写具体银行/平台名称，系统将为您匹配专属协商政策</strong>
+                </p>
+                <div id="debtsContainer">
+                    <!-- 债务项目会动态添加到这里 -->
+                </div>
+                <button class="btn btn-primary" onclick="addDebtItem()">+ 添加债务项目</button>
+            </div>
+
+            <!-- 分析按钮 -->
+            <div style="text-align: center; margin: 30px 0;">
+                <button class="btn btn-success" onclick="analyzeDebts()" style="font-size: 18px; padding: 15px 40px;">
+                    🔍 开始工程师式精准分析
+                </button>
+            </div>
+
+            <!-- 分析结果 -->
+            <div id="analysisResults" style="display: none;">
+                <div class="results">
+                    <h2>📈 债务工程分析报告</h2>
+                    
+                    <div class="result-grid">
+                        <div class="result-item">
+                            <h4>总共欠多少钱</h4>
+                            <div class="value" id="totalDebt">0</div>
+                            <small>元</small>
+                        </div>
+                        <div class="result-item">
+                            <h4>每月要还多少</h4>
+                            <div class="value" id="totalMonthlyPayment">0</div>
+                            <small>元</small>
+                        </div>
+                        <div class="result-item">
+                            <h4>负债严重程度</h4>
+                            <div class="value" id="debtSeverity">正常</div>
+                            <small></small>
+                        </div>
+                        <div class="result-item">
+                            <h4>平均年利率</h4>
+                            <div class="value" id="avgInterestRate">0</div>
+                            <small>%</small>
+                        </div>
+                        <div class="result-item">
+                            <h4>还款压力指数</h4>
+                            <div class="value" id="paymentPressure">0</div>
+                            <small>%</small>
+                        </div>
+                        <div class="result-item">
+                            <h4>债务危险程度</h4>
+                            <div class="value">
+                                <span id="riskLevel" class="risk-level">评估中</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 新增债务人关心的详细信息 -->
+                    <div class="result-grid" style="margin-top: 20px;">
+                        <div class="result-item">
+                            <h4>每年利息支出</h4>
+                            <div class="value" id="yearlyInterest">0</div>
+                            <small>元</small>
+                        </div>
+                        <div class="result-item">
+                            <h4>最长逾期时间</h4>
+                            <div class="value" id="maxOverdueDays">0</div>
+                            <small>天</small>
+                        </div>
+                        <div class="result-item">
+                            <h4>最高利率债务</h4>
+                            <div class="value" id="highestRate">0</div>
+                            <small>%</small>
+                        </div>
+                        <div class="result-item">
+                            <h4>预计还清时间</h4>
+                            <div class="value" id="payoffTime">计算中</div>
+                            <small></small>
+                        </div>
+                    </div>
+
+                    <!-- 银行政策匹配 -->
+                    <div class="policy-match">
+                        <h3>🏦 适用政策参考</h3>
+                        <div id="policyList">
+                            <!-- 政策会动态生成 -->
+                        </div>
+                    </div>
+
+                    <div class="suggestions">
+                        <h3>🔧 工程师建议方案</h3>
+                        <ul id="suggestionsList">
+                            <!-- 建议会动态生成 -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 引流CTA -->
+                <div class="cta-section">
+                    <h2>🎓 想要系统学习债务协商技巧？</h2>
+                    <p style="font-size: 18px; margin-bottom: 20px;">
+                        如果分析结果显示需要协商，我们提供完整的学习方案
+                    </p>
+                    
+                    <div class="price-highlight">
+                        <p>《债务协商实战课程》- 工程师的系统化解决方案</p>
+                        <div>
+                            <span class="old-price">原价 1998元</span>
+                            <br>
+                            <span class="new-price">限时特价 998元</span>
+                        </div>
+                        <p style="margin-top: 15px;">
+                            💡 13年造价师经验 + 真实负债经历 + 200+成功案例<br>
+                            🔧 6步标准协商流程 + 银行内部逻辑 + 实战话术模板<br>
+                            📋 合同分析工具 + 利率计算表 + 风险防控预案
+                        </p>
+                    </div>
+                    
+                    <button class="btn btn-warning" style="font-size: 20px; padding: 20px 50px;">
+                        了解详细课程内容
+                    </button>
+                    
+                    <p style="margin-top: 20px; font-size: 14px; opacity: 0.8;">
+                        💪 不是代办，是教会你方法 | 一次学习，终身受用
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let debtCounter = 0;
+        
+        // 债务类型对应的标准利率 (年化利率)
+        const standardRates = {
+            'credit-card': 18.5,      // 信用卡
+            'online-loan': 24.0,      // 网贷平台
+            'bank-loan': 12.0,        // 银行贷款
+            'housing-loan': 4.9,      // 房贷
+            'car-loan': 8.5,          // 车贷
+            'business-loan': 15.0,    // 经营贷
+            'private-loan': 30.0,     // 民间借贷
+            'other': 20.0             // 其他
+        };
+        
+        // 银行政策库 - 扩展更多具体银行
+        const bankPolicies = {
+            // 信用卡类
+            '工行': {
+                name: '工商银行信用卡',
+                policy: '停息挂账最长60期，需提供困难证明和收入证明',
+                condition: '逾期3个月以上，有稳定还款能力',
+                tips: '工行政策相对严格，需要提供详细的困难证明材料'
+            },
+            '建行': {
+                name: '建设银行信用卡', 
+                policy: '个性化分期最长60期，可减免部分违约金',
+                condition: '主动联系，态度诚恳，提供合理还款计划',
+                tips: '建行比较人性化，主动沟通成功率较高'
+            },
+            '招行': {
+                name: '招商银行信用卡',
+                policy: '停息分期12-60期，政策相对灵活',
+                condition: '确有困难，非恶意逾期，有还款意愿',
+                tips: '招行协商难度中等，需要展现还款诚意'
+            },
+            '中行': {
+                name: '中国银行信用卡',
+                policy: '最长可申请60期分期，利息可协商',
+                condition: '提供困难证明，主动申请协商',
+                tips: '中行流程较正规，按流程操作成功率高'
+            },
+            '农行': {
+                name: '农业银行信用卡',
+                policy: '停息挂账12-60期，需要面谈',
+                condition: '到银行网点面谈，提供相关证明',
+                tips: '农行喜欢面对面沟通，建议本人到网点'
+            },
+            '交行': {
+                name: '交通银行信用卡',
+                policy: '个性化分期最长48期',
+                condition: '逾期后主动联系，说明困难情况',
+                tips: '交行政策较为灵活，协商成功率较高'
+            },
+            '平安': {
+                name: '平安银行信用卡',
+                policy: '停息分期12-60期，可减免违约金',
+                condition: '提供困难证明，制定还款计划',
+                tips: '平安银行较好协商，政策相对宽松'
+            },
+            '浦发': {
+                name: '浦发银行信用卡',
+                policy: '最长60期分期，部分利息可减免',
+                condition: '主动协商，提供收入证明',
+                tips: '浦发需要多次沟通，坚持协商很重要'
+            },
+            '民生': {
+                name: '民生银行信用卡',
+                policy: '个性化分期24-60期',
+                condition: '确有困难，非恶意逾期',
+                tips: '民生银行人性化程度较高'
+            },
+            '光大': {
+                name: '光大银行信用卡',
+                policy: '停息挂账最长60期',
+                condition: '逾期3个月以上，主动申请',
+                tips: '光大银行流程较快，审批效率高'
+            },
+            
+            // 网贷平台类
+            '蚂蚁借呗': {
+                name: '蚂蚁借呗',
+                policy: '可申请延期还款，最长12个月',
+                condition: '因疫情等特殊情况影响收入',
+                tips: '支付宝APP内申请，需要提供困难证明'
+            },
+            '微粒贷': {
+                name: '微粒贷',
+                policy: '支持协商还款，可减免部分利息',
+                condition: '主动联系客服，提供困难证明',
+                tips: '微信内联系客服，态度要诚恳'
+            },
+            '京东金条': {
+                name: '京东金条',
+                policy: '可申请分期减免，延长还款期',
+                condition: '非恶意逾期，有还款意愿',
+                tips: '京东APP内申请，客服响应较快'
+            },
+            '美团借钱': {
+                name: '美团借钱',
+                policy: '支持困难减免申请',
+                condition: '提供困难证明材料',
+                tips: '美团APP内申请，审核较严格'
+            },
+            '360借条': {
+                name: '360借条',
+                policy: '可协商本金分期，减免利息',
+                condition: '主动协商，非恶意逾期',
+                tips: '360平台较好协商，成功率较高'
+            },
+            
+            // 其他类型
+            '房贷': {
+                name: '房贷政策',
+                policy: '可申请延期还款3-6个月，避免房屋拍卖',
+                condition: '主动联系银行，说明困难情况',
+                tips: '房贷是抵押贷款，银行更愿意协商避免拍卖损失'
+            },
+            '车贷': {
+                name: '车贷政策',
+                policy: '可协商延期或降低月供',
+                condition: '提供困难证明，制定还款计划',
+                tips: '车贷逾期时间长可能面临车辆被拖走'
+            }
+        };
+        
+        // 计算可用收入
+        document.getElementById('monthlyIncome').addEventListener('input', calculateAvailableIncome);
+        document.getElementById('monthlyExpenses').addEventListener('input', calculateAvailableIncome);
+        
+        function calculateAvailableIncome() {
+            const income = parseFloat(document.getElementById('monthlyIncome').value) || 0;
+            const expenses = parseFloat(document.getElementById('monthlyExpenses').value) || 0;
+            const available = Math.max(0, income - expenses);
+            document.getElementById('availableIncome').value = available;
+        }
+        
+        // 添加债务项目
+        function addDebtItem() {
+            debtCounter++;
+            const container = document.getElementById('debtsContainer');
+            const debtItem = document.createElement('div');
+            debtItem.className = 'debt-item';
+            debtItem.id = `debt-${debtCounter}`;
+            
+            debtItem.innerHTML = `
+                <button class="remove-btn" onclick="removeDebtItem(${debtCounter})">&times;</button>
+                <h3>债务项目 ${debtCounter}</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>债权机构类型</label>
+                        <select class="debt-type" onchange="updateRate(this, ${debtCounter})">
+                            <option value="credit-card">信用卡 (年化约18.5%)</option>
+                            <option value="online-loan">网贷平台 (年化约24%)</option>
+                            <option value="bank-loan">银行贷款 (年化约12%)</option>
+                            <option value="housing-loan">房贷 (年化约4.9%)</option>
+                            <option value="car-loan">车贷 (年化约8.5%)</option>
+                            <option value="business-loan">经营贷 (年化约15%)</option>
+                            <option value="private-loan">民间借贷 (年化约30%)</option>
+                            <option value="other">其他 (年化约20%)</option>
+                        </select>
+                        <div class="help-text">选择债务类型，系统自动匹配标准利率</div>
+                    </div>
+                    <div class="form-group">
+                        <label>具体机构名称 ⭐</label>
+                        <input type="text" class="debt-bank" placeholder="如：工行信用卡、招行信用卡、蚂蚁借呗">
+                        <div class="help-text">重要：填写具体名称可获得专属协商政策</div>
+                    </div>
+                    <div class="form-group">
+                        <label>欠款总额 (元)</label>
+                        <input type="number" class="debt-principal" placeholder="当前总欠款">
+                        <div class="help-text">包含本金+利息+违约金</div>
+                    </div>
+                    <div class="form-group">
+                        <label>预计年利率 (%)</label>
+                        <input type="number" class="debt-rate" placeholder="自动填入" step="0.01" class="auto-calculated" readonly>
+                        <div class="help-text">系统根据债务类型自动填入</div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>当前月供 (元)</label>
+                        <input type="number" class="monthly-payment" placeholder="当前每月还款额">
+                        <div class="help-text">填0表示已停止还款</div>
+                    </div>
+                    <div class="form-group">
+                        <label>逾期状态</label>
+                        <select class="overdue-status">
+                            <option value="normal">正常还款</option>
+                            <option value="overdue-1">逾期1-30天</option>
+                            <option value="overdue-2">逾期31-90天</option>
+                            <option value="overdue-3">逾期91-180天</option>
+                            <option value="overdue-6">逾期超过180天</option>
+                        </select>
+                        <div class="help-text">影响协商难度和优先级</div>
+                    </div>
+                    <div class="form-group">
+                        <label>协商难度</label>
+                        <input type="text" class="negotiate-difficulty" placeholder="自动评估" class="auto-calculated" readonly>
+                        <div class="help-text">系统根据债务类型和逾期情况自动评估</div>
+                    </div>
+                    <div class="form-group">
+                        <label>处理优先级</label>
+                        <input type="text" class="priority" placeholder="自动评估" class="auto-calculated" readonly>
+                        <div class="help-text">系统根据风险程度自动排序</div>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(debtItem);
+            
+            // 自动填入利率和评估难度优先级
+            updateRate(debtItem.querySelector('.debt-type'), debtCounter);
+        }
+        
+        // 更新利率和自动评估
+        function updateRate(selectElement, debtId) {
+            const debtType = selectElement.value;
+            const debtItem = document.getElementById(`debt-${debtId}`);
+            
+            // 自动填入利率
+            const rateInput = debtItem.querySelector('.debt-rate');
+            rateInput.value = standardRates[debtType];
+            
+            // 自动评估协商难度
+            const difficultyInput = debtItem.querySelector('.negotiate-difficulty');
+            const overdueStatus = debtItem.querySelector('.overdue-status').value;
+            
+            let difficulty = '容易';
+            if (debtType === 'online-loan' || debtType === 'private-loan') {
+                difficulty = '困难';
+            } else if (debtType === 'credit-card' && overdueStatus !== 'normal') {
+                difficulty = '中等';
+            }
+            difficultyInput.value = difficulty;
+            
+            // 自动评估优先级
+            const priorityInput = debtItem.querySelector('.priority');
+            let priority = '中';
+            if (debtType === 'housing-loan' || debtType === 'credit-card') {
+                priority = '高 (影响征信)';
+            } else if (debtType === 'private-loan') {
+                priority = '低 (协商空间大)';
+            }
+            priorityInput.value = priority;
+        }
+        
+        // 删除债务项目
+        function removeDebtItem(id) {
+            const item = document.getElementById(`debt-${id}`);
+            if (item) {
+                item.remove();
+            }
+        }
+        
+        // 匹配银行政策 - 根据用户填写的具体银行匹配
+        function matchBankPolicies(debts) {
+            const matchedPolicies = [];
+            const processedBanks = new Set();
+            
+            debts.forEach(debt => {
+                const bankName = debt.querySelector('.debt-bank').value.trim();
+                const debtType = debt.querySelector('.debt-type').value;
+                
+                if (bankName) {
+                    // 尝试匹配具体银行名称
+                    let matchedBank = null;
+                    
+                    // 检查是否包含银行关键词
+                    for (const [key, policy] of Object.entries(bankPolicies)) {
+                        if (bankName.includes(key) || bankName.toLowerCase().includes(key.toLowerCase())) {
+                            if (!processedBanks.has(key)) {
+                                matchedBank = policy;
+                                processedBanks.add(key);
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // 如果没有匹配到具体银行，根据债务类型提供通用建议
+                    if (!matchedBank && !processedBanks.has(debtType)) {
+                        switch(debtType) {
+                            case 'credit-card':
+                                matchedBank = {
+                                    name: '信用卡通用政策',
+                                    policy: '大部分银行支持停息挂账12-60期',
+                                    condition: '逾期3个月以上，主动申请协商',
+                                    tips: '不同银行政策差异较大，建议多次尝试'
+                                };
+                                break;
+                            case 'online-loan':
+                                matchedBank = {
+                                    name: '网贷平台通用',
+                                    policy: '多数平台支持协商还本金，减免利息',
+                                    condition: '强调法律条文，态度要坚决',
+                                    tips: '网贷协商成功率较高，关键是要主动联系'
+                                };
+                                break;
+                            case 'housing-loan':
+                                matchedBank = bankPolicies['房贷'];
+                                break;
+                            case 'car-loan':
+                                matchedBank = bankPolicies['车贷'];
+                                break;
+                        }
+                        if (matchedBank) {
+                            processedBanks.add(debtType);
+                        }
+                    }
+                    
+                    if (matchedBank) {
+                        matchedPolicies.push(matchedBank);
+                    }
+                }
+            });
+            
+            return matchedPolicies;
+        }
+        
+        // 显示银行政策
+        function displayPolicies(policies) {
+            const policyList = document.getElementById('policyList');
+            policyList.innerHTML = '';
+            
+            if (policies.length === 0) {
+                policyList.innerHTML = '<p>💡 请在债务清单中填写具体的银行或平台名称，系统将为您匹配相应的协商政策</p>';
+                return;
+            }
+            
+            policies.forEach(policy => {
+                const policyItem = document.createElement('div');
+                policyItem.className = 'policy-item';
+                policyItem.innerHTML = `
+                    <h4>🏦 ${policy.name}</h4>
+                    <p><strong>📋 协商政策：</strong>${policy.policy}</p>
+                    <p><strong>✅ 申请条件：</strong>${policy.condition}</p>
+                    <p><strong>💡 实用提示：</strong>${policy.tips}</p>
+                `;
+                policyList.appendChild(policyItem);
+            });
+        }
+        
+        // 分析债务
+        function analyzeDebts() {
+            const userName = document.getElementById('userName').value || '朋友';
+            const monthlyIncome = parseFloat(document.getElementById('monthlyIncome').value) || 0;
+            const monthlyExpenses = parseFloat(document.getElementById('monthlyExpenses').value) || 0;
+            const availableIncome = parseFloat(document.getElementById('availableIncome').value) || 0;
+            
+            if (monthlyIncome === 0) {
+                alert('请先填写收支情况');
+                return;
+            }
+            
+            const debtItems = document.querySelectorAll('.debt-item');
+            if (debtItems.length === 0) {
+                alert('请至少添加一项债务信息');
+                return;
+            }
+            
+            let totalDebt = 0;
+            let totalMonthlyPayment = 0;
+            let weightedRate = 0;
+            let overdueDebts = 0;
+            let maxOverdueDays = 0;
+            let highestRate = 0;
+            
+            debtItems.forEach(item => {
+                const principal = parseFloat(item.querySelector('.debt-principal').value) || 0;
+                const rate = parseFloat(item.querySelector('.debt-rate').value) || 0;
+                const monthlyPayment = parseFloat(item.querySelector('.monthly-payment').value) || 0;
+                const overdueStatus = item.querySelector('.overdue-status').value;
+                
+                totalDebt += principal;
+                totalMonthlyPayment += monthlyPayment;
+                weightedRate += (principal * rate);
+                
+                // 计算最高利率
+                if (rate > highestRate) {
+                    highestRate = rate;
+                }
+                
+                // 计算最长逾期时间
+                if (overdueStatus !== 'normal') {
+                    overdueDebts++;
+                    let days = 0;
+                    switch(overdueStatus) {
+                        case 'overdue-1': days = 15; break;
+                        case 'overdue-2': days = 60; break;
+                        case 'overdue-3': days = 135; break;
+                        case 'overdue-6': days = 270; break;
+                    }
+                    if (days > maxOverdueDays) {
+                        maxOverdueDays = days;
+                    }
+                }
+            });
+            
+            const avgInterestRate = totalDebt > 0 ? (weightedRate / totalDebt).toFixed(1) : 0;
+            const yearlyIncome = monthlyIncome * 12;
+            const debtToIncomeRatio = yearlyIncome > 0 ? (totalDebt / yearlyIncome) : 0;
+            const paymentPressure = availableIncome > 0 ? ((totalMonthlyPayment / availableIncome) * 100).toFixed(0) : 0;
+            const yearlyInterest = (totalDebt * avgInterestRate / 100).toFixed(0);
+            
+            // 负债严重程度判断
+            let debtSeverity = '正常';
+            if (debtToIncomeRatio > 1) {
+                debtSeverity = '极其严重';
+            } else if (debtToIncomeRatio > 0.5) {
+                debtSeverity = '严重';
+            } else if (debtToIncomeRatio > 0.3) {
+                debtSeverity = '中等';
+            } else if (debtToIncomeRatio > 0.1) {
+                debtSeverity = '轻微';
+            }
+            
+            // 预计还清时间 - 考虑停止还款的情况
+            let payoffTime = '无法计算';
+            let stoppedPaymentCount = 0;
+            
+            debtItems.forEach(item => {
+                const monthlyPayment = parseFloat(item.querySelector('.monthly-payment').value) || 0;
+                if (monthlyPayment === 0) {
+                    stoppedPaymentCount++;
+                }
+            });
+            
+            if (stoppedPaymentCount > 0) {
+                if (stoppedPaymentCount === debtItems.length) {
+                    payoffTime = '已全面停止还款';
+                } else {
+                    payoffTime = '部分停止还款';
+                }
+            } else if (availableIncome > 0 && totalDebt > 0 && totalMonthlyPayment > 0) {
+                if (totalMonthlyPayment > availableIncome) {
+                    payoffTime = '月供超出能力';
+                } else {
+                    // 简化计算：总债务除以月供
+                    const months = Math.ceil(totalDebt / totalMonthlyPayment);
+                    if (months <= 12) {
+                        payoffTime = `约${months}个月`;
+                    } else if (months <= 120) {
+                        const years = Math.floor(months / 12);
+                        const remainingMonths = months % 12;
+                        payoffTime = remainingMonths > 0 ? `约${years}年${remainingMonths}个月` : `约${years}年`;
+                    } else {
+                        payoffTime = '超过10年';
+                    }
+                }
+            }
+            
+            // 风险评估
+            let riskLevel = 'low';
+            let riskClass = 'risk-low';
+            let riskText = '较安全';
+            
+            if (paymentPressure > 80 || debtToIncomeRatio > 0.5 || overdueDebts > 2) {
+                riskLevel = 'high';
+                riskClass = 'risk-high';
+                riskText = '高危险';
+            } else if (paymentPressure > 50 || debtToIncomeRatio > 0.3 || overdueDebts > 0) {
+                riskLevel = 'medium';
+                riskClass = 'risk-medium';
+                riskText = '需注意';
+            }
+            
+            // 显示结果
+            document.getElementById('totalDebt').textContent = totalDebt.toLocaleString();
+            document.getElementById('totalMonthlyPayment').textContent = totalMonthlyPayment.toLocaleString();
+            document.getElementById('debtSeverity').textContent = debtSeverity;
+            document.getElementById('avgInterestRate').textContent = avgInterestRate;
+            document.getElementById('paymentPressure').textContent = paymentPressure;
+            document.getElementById('yearlyInterest').textContent = parseInt(yearlyInterest).toLocaleString();
+            document.getElementById('maxOverdueDays').textContent = maxOverdueDays;
+            document.getElementById('highestRate').textContent = highestRate;
+            document.getElementById('payoffTime').textContent = payoffTime;
+            
+            const riskElement = document.getElementById('riskLevel');
+            riskElement.textContent = riskText;
+            riskElement.className = `risk-level ${riskClass}`;
+            
+            // 生成个性化建议
+            generateSuggestions(userName, riskLevel, paymentPressure, debtSeverity, overdueDebts, avgInterestRate, debtToIncomeRatio);
+            
+            // 匹配银行政策
+            const policies = matchBankPolicies(debtItems);
+            displayPolicies(policies);
+            
+            // 显示结果区域
+            document.getElementById('analysisResults').style.display = 'block';
+            document.getElementById('analysisResults').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // 生成个性化建议 - 更好地抓住用户痛点
+        function generateSuggestions(userName, riskLevel, paymentPressure, debtSeverity, overdueDebts, avgRate, debtToIncomeRatio) {
+            const suggestionsList = document.getElementById('suggestionsList');
+            suggestionsList.innerHTML = '';
+            
+            const suggestions = [];
+            
+            // 检查停止还款情况
+            let stoppedPaymentCount = 0;
+            const debtItems = document.querySelectorAll('.debt-item');
+            debtItems.forEach(item => {
+                const monthlyPayment = parseFloat(item.querySelector('.monthly-payment').value) || 0;
+                if (monthlyPayment === 0) {
+                    stoppedPaymentCount++;
+                }
+            });
+            
+            // 根据个人称呼个性化开头
+            if (userName && userName !== '朋友') {
+                suggestions.push(`👋 ${userName}，根据您的债务分析，我给出以下建议：`);
+            }
+            
+            // 针对停止还款的紧急建议
+            if (stoppedPaymentCount > 0) {
+                if (stoppedPaymentCount === debtItems.length) {
+                    suggestions.push('🚨 【紧急】您已全面停止还款，征信正在恶化，必须立即行动！');
+                    suggestions.push('📞 【第一步】今天就联系每家债权方，说明困难并提出协商申请');
+                    suggestions.push('⏰ 【时间窗口】逾期时间越长协商难度越大，抓紧最后机会');
+                } else {
+                    suggestions.push('⚠️ 【风险警告】部分债务已停止还款，征信受损正在加重');
+                    suggestions.push('🎯 【优先处理】先恢复影响征信的债务还款，再处理其他债务');
+                }
+            }
+            
+            // 针对不同风险等级的痛点建议
+            if (riskLevel === 'high') {
+                suggestions.push('💥 【债务危机】当前状况已经很危险，不能再拖延了');
+                suggestions.push('🛑 【停止挖坑】立即停止所有新借贷，避免债务雪球越滚越大');
+                suggestions.push('💡 【协商重组】尽快将高息债务协商为低息长期分期');
+                
+                if (debtSeverity === '极其严重') {
+                    suggestions.push('🏥 【考虑破产】如果协商失败，可了解个人破产制度');
+                }
+            } else if (riskLevel === 'medium') {
+                suggestions.push('⚡ 【预警信号】债务压力正在加大，需要及时调整策略');
+                suggestions.push('📊 【重新规划】制定更现实的还款计划，避免情况恶化');
+            }
+            
+            // 针对高还款压力的痛点
+            if (parseInt(paymentPressure) > 80) {
+                suggestions.push('😰 【压力山大】每月还款超出承受能力，这样下去会崩溃');
+                suggestions.push('💰 【降低月供】申请延长还款期，把月供降到能承受的范围');
+                suggestions.push('💼 【开源增收】考虑兼职或副业，哪怕每月多赚1000也是希望');
+            }
+            
+            // 针对高利率的痛点
+            if (avgRate > 24) {
+                suggestions.push('🔥 【利息吃人】平均利率太高，大部分还款都在付利息');
+                suggestions.push('⚖️【法律维权】超过24%的利息可以拒付，这是法律保护');
+                suggestions.push('🔍 【合同检查】仔细看贷款合同，很多费用是可以争议的');
+            }
+            
+            // 针对逾期的痛点
+            if (overdueDebts > 0) {
+                suggestions.push('📱 【征信受损】逾期记录正在影响您的信用，要尽快止损');
+                suggestions.push('🛡️ 【应对催收】学会合法应对催收，不要被威胁吓倒');
+                suggestions.push('⚡ 【抢救征信】优先解决上征信的逾期，保住信用底线');
+            }
+            
+            // 针对负债严重程度的建议
+            if (debtSeverity === '严重' || debtSeverity === '极其严重') {
+                suggestions.push('💔 【生活艰难】债务负担这么重，生活压力一定很大');
+                suggestions.push('🏠 【评估资产】看看有没有房产、车辆等可以变现减债');
+                suggestions.push('👨‍👩‍👧‍👦 【家人支持】适当告知家人，争取理解和帮助');
+            }
+            
+            // 实用操作建议
+            suggestions.push('📚 【学会协商】掌握和银行谈判的话术，自己协商省几万中介费');
+            suggestions.push('📊 【建立台账】记录每笔债务的协商进展，避免遗漏');
+            suggestions.push('🎯 【设定目标】把大目标分解成小目标，每月完成一个小进步');
+            
+            // 心理建设建议
+            if (riskLevel === 'high' || stoppedPaymentCount > 0) {
+                suggestions.push('💪 【坚持希望】很多人从更严重的债务中走出来了，您也可以');
+                suggestions.push('🌅 【相信明天】债务是暂时的困难，方法对了就能解决');
+            }
+            
+            suggestions.forEach(suggestion => {
+                const li = document.createElement('li');
+                li.textContent = suggestion;
+                suggestionsList.appendChild(li);
+            });
+        }
+        
+        // 页面加载时的初始化
+        window.onload = function() {
+            addDebtItem(); // 默认添加一个债务项目
+        };
+    </script>
+</body>
+</html>
